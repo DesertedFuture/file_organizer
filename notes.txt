@@ -1,0 +1,36 @@
++What do i need to figure out?
++       -file architecture
++               -compantDocs
++                       -project_ABC
++                       -project_XYZ
++                               -colors
++                               -construction plans
++                               -contract and worksheet
++                               -pic
++                                       -renders
++                                       -progress
++                               -payment
++                               -permit
++                               -receipts
++                               -xcel
++                               -unique
++
++       -How to auto figure out what a file means
++               -ai model for this
++               -self trained or not
++               -different models for different types of files
++                       -for pdf maybe and images: Donut (base-sized model, fine-tuned on CORD)
++
++       -Requirments:
++               -read pdfs
++
++---------------------------------------------------------------------------
++stopping AI stuff for now
++---------------------------------------------------------------------------
++
++configurable file architecture
++commands to create file architecture
++auto_name_generation
++placement_of_file
++GUI?
+
