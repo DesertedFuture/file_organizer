@@ -19,8 +19,16 @@ else {
     Invoke-Expression "& $env:ProgramFiles\Python39\python.exe -m ensurepip"
 }
 
-# Install required Python packages
+# Upgrade pip and install required Python packages using Python's pip
+Write-Host "Upgrading pip..."
+& $env:ProgramFiles\Python39\Scripts\pip.exe install --upgrade pip
+
+# Add the Scripts directory to the system's PATH
+$scriptsPath = Join-Path $env:ProgramFiles\Python39\Scripts
+[Environment]::SetEnvironmentVariable("Path", "$($env:Path);$scriptsPath", [System.EnvironmentVariableTarget]::Machine)
+
+# Install required Python packages using Python's pip
 Write-Host "Installing required Python packages..."
-pip install tkinterdnd2
+& $env:ProgramFiles\Python39\Scripts\pip.exe install tkinterdnd2
 
 Write-Host "Dependencies installation complete."
