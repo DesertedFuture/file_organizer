@@ -1,36 +1,23 @@
 # file_organizer.py
-import os
 import shutil
+import os
 
 class FileOrganizer:
-    def __init__(self, config_handler):
-        self.config_handler = config_handler
+    def __init__(self):
+        # Any initialization code for the FileOrganizer class
+        return
 
-    def organize_files(self):
-        constant_directory = self.config_handler.get_constant_directory()
+    def rename_and_move_file(self, source_file, destination_folder, new_name):
+        # Extract the base name and extension from the source file
+        base_name, extension = os.path.splitext(os.path.basename(source_file))
 
-        # Ensure the constant directory is set
-        if not constant_directory:
-            print("Constant directory not set. Please configure it in the settings.")
-            return
+        # Construct the new file name with the desired architecture
+        new_file_name = f"{new_name}_{base_name}{extension}"
 
-        # Perform file organization logic
-        # ...
+        # Construct the full path for the destination file
+        destination_file = os.path.join(destination_folder, new_file_name)
 
-    def move_and_rename_files(self, source_folder, spec_file_path):
-        # Your logic for moving and renaming files based on the specification file
-        # ...
-        if not constant_directory:
-            print("Constant directory not set. Please configure it in the settings.")
-            return
+        # Move the file to the new location with the new name
+        shutil.move(source_file, destination_file)
 
-    def create_folders_from_spec(self, constant_directory, spec_file_path):
-        # Your logic for creating folders based on the specification file
-        # ...
-        if not constant_directory:
-            print("Constant directory not set. Please configure it in the settings.")
-            return
-
-    def run(self):
-        # Your main logic for organizing files
-        self.organize_files()
+    # Add other methods related to file organization here
