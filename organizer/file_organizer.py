@@ -19,5 +19,9 @@ class FileOrganizer:
 
         # Move the file to the new location with the new name
         shutil.move(source_file, destination_file)
+        print(source_file)
+        print(destination_file)
+        print(new_file_name)
+
 
     # Add other methods related to file organization here
