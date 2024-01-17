@@ -5,12 +5,13 @@ from organizer.file_organizer import FileOrganizer
 import os
 import configparser
 
-class BaseGUI(tk.Tk):
-    def __init__(self):
-        super().__init__()
+class GUIHandler:
+    def __init__(self, master):
+        self.root = master
+        self.root.title("File Organizer")
 
         # Create a Notebook for organizing tabs
-        self.notebook = ttk.Notebook(self)
+        self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(expand=True, fill='both')
 
         # Instantiate FileOrganizer
@@ -19,6 +20,15 @@ class BaseGUI(tk.Tk):
         # Load configuration
         self.config = configparser.ConfigParser()
         self.load_config()
+
+        # Create main tab
+        main_tab = self.create_main_tab()
+
+        #Create New Project tab
+        new_project_tab = self.create_new_project_tab()
+
+        #Create settings tab
+        settings_tab = self.create_settings_tab()
 
     def load_config(self):
         try:
@@ -39,34 +49,10 @@ class BaseGUI(tk.Tk):
         except configparser.Error as e:
             # Handle the case when there is an error while saving the config
             print(f"Error saving configuration: {e}")
-
-    def browse_file(self):
-        file = filedialog.askopenfilename()
-        return file
-
-    def browse_folder(self):
-        folder = filedialog.askdirectory()
-        return folder
-
-    def create_tab(self, title):
-        tab = ttk.Frame(self.notebook)
-        self.notebook.add(tab, text=title)
-        return tab
-
-    def set_folder_entry(self, entry_var, label_text, browse_command):
-        tk.Label(self, text=label_text).grid(row=0, column=0, padx=5, pady=5)
-        tk.Entry(self, textvariable=entry_var, width=40).grid(row=0, column=1, padx=5, pady=5)
-        tk.Button(self, text="Browse", command=browse_command).grid(row=0, column=2, padx=5, pady=5)
-
-class GUIHandler(BaseGUI):
-    def __init__(self, root):
-        super().__init__()
-
-        self.root = root
-        self.root.title("File Organizer")
-
-        # Create main tab
-        main_tab = self.create_tab('Main')
+    
+    def create_main_tab(self):
+        main_tab = ttk.Frame(self.notebook)
+        self.notebook.add(main_tab, text='Main')
 
         # Initialize attributes
         self.source_file = tk.StringVar()
@@ -74,32 +60,46 @@ class GUIHandler(BaseGUI):
         self.rename_file_text = tk.StringVar()
 
         # Entry for source file
-        self.set_folder_entry(self.source_file, "Source File:", self.browse_and_set_source_file)
+        self.set_folder_entry(main_tab, self.source_file, "Source File:", self.browse_file)
 
         # Entry for destination folder
-        self.set_folder_entry(self.destination_folder, "Destination Folder:", self.browse_and_set_destination_folder)
+        self.set_folder_entry(main_tab, self.destination_folder, "Destination Folder:", self.browse_and_set_folder)
 
         # Entry for renaming the file
-        tk.Label(main_tab, text="Rename File:").grid(row=2, column=0, padx=5, pady=5)
-        tk.Entry(main_tab, textvariable=self.rename_file_text, width=40).grid(row=2, column=1, padx=5, pady=5)
+        tk.Label(main_tab, text="Rename File:").pack(pady=5)
+        tk.Entry(main_tab, textvariable=self.rename_file_text, width=40).pack(pady=5)
 
         # Confirmation button
-        tk.Button(main_tab, text="Confirm", command=self.show_confirmation).grid(row=3, column=0, columnspan=3, pady=10)
+        tk.Button(main_tab, text="Confirm", command=self.show_confirmation).pack(pady=10)
+    
+    def create_new_project_tab(self):
+        new_project_tab = ttk.Frame(self.notebook)
+        self.notebook.add(new_project_tab, text='New Project')
 
-        # Create settings tab
-        settings_tab = self.create_tab('Settings')
+        # Entry for renaming the file
+        tk.Label(new_project_tab, text="Create New Project?").pack(pady=5)
+        # Confirmation button
+        tk.Button(new_project_tab, text="Confirm", command=self.create_new_project).pack(pady=10)
+    
+    def create_new_project(self):
+        return
+    
+    def create_settings_tab(self):
+        settings_tab = ttk.Frame(self.notebook)
+        self.notebook.add(settings_tab, text='settings')
 
-        # Entry for source project folder
-        self.set_folder_entry(self.destination_folder, "Source Project Folder:", self.browse_and_set_source_project_folder)
+        # Entry for renaming the file
+        tk.Label(settings_tab, text="configuration").pack(pady=5)
+        # Confirmation button
+        tk.Button(settings_tab, text="Confirm", command=self.create_settings_tab).pack(pady=10)
 
-        # Create new project tab
-        new_project_tab = self.create_tab('New Project')
+    def set_folder_entry(self, tab, entry_var, label_text, browse_command):
+        frame = tk.Frame(tab)
+        frame.pack(pady=5)
 
-        tk.Label(new_project_tab, text="Project Name:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
-        tk.Entry(new_project_tab).grid(row=0, column=1, padx=5, pady=5)
-
-        # Button to select project folder
-        tk.Button(new_project_tab, text="Select Project Folder", command=self.browse_and_set_project_folder).grid(row=1, column=0, columnspan=2, pady=10)
+        tk.Label(frame, text=label_text).pack(side=tk.LEFT, padx=5)
+        tk.Entry(frame, textvariable=entry_var, width=40).pack(side=tk.LEFT, padx=5)
+        tk.Button(frame, text="Browse", command=browse_command).pack(side=tk.LEFT, padx=5)
 
     def show_confirmation(self):
         source_file = self.source_file.get()
@@ -158,38 +158,15 @@ class GUIHandler(BaseGUI):
         else:
             messagebox.showwarning("Warning", "Please provide both source file and destination folder.")
 
-    def browse_and_set_source_file(self):
-        file = self.browse_file()
-        self.set_source_file(file)
+    def browse_file(self):
+        file = filedialog.askopenfilename()
+        self.source_file.set(file)
 
-    def browse_and_set_destination_folder(self):
-        folder = self.browse_folder()
-        self.set_destination_folder(folder)
-
-    def browse_and_set_source_project_folder(self):
-        folder = self.browse_folder()
-        if folder:
-            self.destination_folder.set(folder)
-            # Include logic to set source project folder in FileOrganizer
-
-    def browse_and_set_project_folder(self):
-        project_folder = self.browse_folder()
-        self.set_project_folder(project_folder)
-
-    def set_destination_folder(self, folder):
-        if folder:
-            self.destination_folder.set(folder)
-
-    def set_project_folder(self, folder):
-        if folder:
-            self.project_folder.set(folder)
-            self.save_config()
-
-    def set_source_file(self, file):
-        if file:
-            self.source_file.set(file)
+    def browse_and_set_folder(self):
+        folder = filedialog.askdirectory()
+        self.destination_folder.set(folder)
 
 if __name__ == "__main__":
-    root = TkinterDnD.Tk()
+    root = TkinterDnD.Tk()  # Use TkinterDnD for drag and drop
     gui_handler = GUIHandler(root)
     root.mainloop()
