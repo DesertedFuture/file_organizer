@@ -3,18 +3,14 @@ from tkinter import ttk, filedialog, messagebox
 from tkinterdnd2 import TkinterDnD, DND_FILES
 from organizer.file_organizer import FileOrganizer
 import os
-import configparser
-import config_handler import ConfigHandler
-
-
+from config.config_handler import ConfigHandler
 
 
 class GUIHandler:
-    def __init__(self, master, config_handler):
+    def __init__(self, master):
         self.root = master
         self.root.title("File Organizer")
-        self.config_handler = config_handler
-
+        self.config_handler = ConfigHandler()
 
         # Create a Notebook for organizing tabs
         self.notebook = ttk.Notebook(self.root)
@@ -23,17 +19,11 @@ class GUIHandler:
         # Instantiate FileOrganizer
         self.file_organizer = FileOrganizer()
 
-        # Load configuration
-        self.config_handler.load_config(self)
-
-        # Create main tab
         main_tab = self.create_main_tab()
-
-        #Create New Project tab
         new_project_tab = self.create_new_project_tab()
-
-        #Create settings tab
         settings_tab = self.create_settings_tab()
+
+        self.directory_folder = tk.StringVar()
 
     def create_main_tab(self):
         main_tab = ttk.Frame(self.notebook)
@@ -63,27 +53,27 @@ class GUIHandler:
         tk.Label(new_project_tab, text="Create New Project?").pack(pady=5)
         # Confirmation button
         tk.Button(new_project_tab, text="Confirm", command=self.create_new_project).pack(pady=10)
-    
+
     def create_settings_tab(self):
         settings_tab = ttk.Frame(self.notebook)
         self.project_directory = tk.StringVar()
         self.notebook.add(settings_tab, text='Settings')
 
         tk.Label(settings_tab, text="Configuration").pack(pady=5)
-
-        # Button to set the project directory
-        tk.Button(settings_tab, text="Set Project Directory", command=self.browse_and_set_folder).pack(pady=10)
-
-        # Label to display the currently set directory
+        tk.Button(settings_tab, text="Set Project Directory", command=self.browse_and_config_d).pack(pady=10)
         tk.Label(settings_tab, text="Currently set directory:").pack(pady=5)
-        self.current_directory_label = tk.Label(settings_tab, text="")
+        self.current_directory_label = tk.Label(settings_tab, text=self.config_handler.load_directory)
         self.current_directory_label.pack(pady=5)
-
-        # Call the method to update and display the project folder
-        self.display_project_folder()    
+    
+    def browse_and_config_d(self):
+        folder = filedialog.askdirectory()
+        self.config_handler.update_d(folder)
+        self.directory = folder
+        self.current_directory_label.config(text=folder)
 
     def create_new_project(self):
         return    
+
 
     
     def set_folder_entry(self, tab, entry_var, label_text, browse_command):
@@ -135,31 +125,6 @@ class GUIHandler:
                 self.config.write(configfile)
 
 
-    def run_file_organizer(self):
-        # Get user input for renaming
-        user_input = self.rename_file_text.get()
-
-        # Get source file and destination folder
-        source_file = self.source_file.get()
-        destination_folder = self.destination_folder.get()
-
-        if source_file and destination_folder:
-            # Construct new file name based on the desired architecture
-            new_file_name = f"{user_input}_{os.path.basename(source_file)}"
-
-            # Construct the full path for the destination file
-            destination_file = os.path.join(destination_folder, new_file_name)
-
-            try:
-                # Perform the file relocation logic
-                shutil.move(source_file, destination_file)
-
-                messagebox.showinfo("Success", "Files organized successfully!")
-            except Exception as e:
-                messagebox.showerror("Error", f"Error moving the file: {str(e)}")
-        else:
-            messagebox.showwarning("Warning", "Please provide both source file and destination folder.")
-
     def browse_and_set_file(self):
         file = filedialog.askopenfilename()
         self.source_file.set(file)
@@ -167,18 +132,32 @@ class GUIHandler:
     def browse_and_set_folder(self):
         folder = filedialog.askdirectory()
         self.destination_folder.set(folder)
-   
-    def display_project_folder(self):
-        # Access the project_folder variable directly to get the current value
-        current_folder = self.project_folder.get()
 
-        # Update the label to display the current_folder value
-        self.current_directory_label.config(text=current_folder)
+
+    def run_file_organizer(self):
+        # Get user input for renaming
+        user_input = self.rename_file_text.get()
+        # Get source file and destination folder
+        source_file = self.source_file.get()
+        destination_folder = self.destination_folder.get()
+        if source_file and destination_folder:
+            # Construct new file name based on the desired architecture
+            new_file_name = f"{user_input}_{os.path.basename(source_file)}"
+
+            # Construct the full path for the destination file
+            destination_file = os.path.join(destination_folder, new_file_name)
+            try:
+                # Perform the file relocation logic
+                shutil.move(source_file, destination_file)
+                messagebox.showinfo("Success", "Files organized successfully!")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error moving the file: {str(e)}")
+            else:
+                messagebox.showwarning("Warning", "Please provide both source file and destination folder.")
 
 if __name__ == "__main__":
     root = TkinterDnD.Tk()  # Use TkinterDnD for drag and drop
-    config_handler = ConfigHandler()
-    gui_handler = GUIHandler(root,config_handler)
+    gui_handler = GUIHandler(root)
 
     root.mainloop()
 
