@@ -3,36 +3,29 @@ import configparser
 import os
 
 class ConfigHandler:
-    def __init__(self, config_file_path='config.ini'):
-        self.config_file_path = config_file_path
+    def __init__(self):
         self.config = configparser.ConfigParser()
 
-        # Load existing configuration
-        self.load_configuration()
+        if not os.path.exists('config.ini') or not self.validate_config_structure():
+            self.create_default_config()
 
-    def load_configuration(self):
-        if os.path.exists(self.config_file_path):
-            self.config.read(self.config_file_path)
-        else:
-            # Set default values if the configuration file doesn't exist
-            self.create_default_configuration()
+    def validate_config_structure(self):
+        required_sections=['Settings']
+        required_options = {'Settings:' ['project_directory']}
 
-    def create_default_configuration(self):
-        # Set default values for configuration options
-        self.config['Directories'] = {
-            'ConstantDirectory': '',
-            'SourceFolder': '',
-            'SpecDirectory': ''
-        }
+        try:
+            self.config.read('config.ini')
 
-        # Save the default configuration to the file
-        with open(self.config_file_path, 'w') as configfile:
-            self.config.write(configfile)
+            for section in required_sections:
+                if not self.config.has_section(section):
+                    return False
+            for option in required_options.get(section,[]):
+                if not self.config.has_option(section, option):
+                    return False
+        except configparser.Error:
+            return False
 
-    def get_constant_directory(self):
-        return self.config.get('Directories', 'ConstantDirectory', fallback='')
+        return True
 
-    def set_constant_directory(self, path):
-        self.config.set('Directories', 'ConstantDirectory', path)
-        with open(self.config_file_path, 'w') as configfile:
-            self.config.write(configfile)
+    def load_config(self):
+

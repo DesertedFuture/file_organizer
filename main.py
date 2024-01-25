@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # main.py
 from gui.gui_handler import GUIHandler
 from tkinterdnd2 import TkinterDnD

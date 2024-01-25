@@ -4,11 +4,17 @@ from tkinterdnd2 import TkinterDnD, DND_FILES
 from organizer.file_organizer import FileOrganizer
 import os
 import configparser
+import config_handler import ConfigHandler
+
+
+
 
 class GUIHandler:
-    def __init__(self, master):
+    def __init__(self, master, config_handler):
         self.root = master
         self.root.title("File Organizer")
+        self.config_handler = config_handler
+
 
         # Create a Notebook for organizing tabs
         self.notebook = ttk.Notebook(self.root)
@@ -18,8 +24,7 @@ class GUIHandler:
         self.file_organizer = FileOrganizer()
 
         # Load configuration
-        self.config = configparser.ConfigParser()
-        self.load_config()
+        self.config_handler.load_config(self)
 
         # Create main tab
         main_tab = self.create_main_tab()
@@ -30,26 +35,6 @@ class GUIHandler:
         #Create settings tab
         settings_tab = self.create_settings_tab()
 
-    def load_config(self):
-        try:
-            self.config.read('config.ini')
-            self.project_folder = tk.StringVar(value=self.config.get('Settings', 'project_folder'))
-        except configparser.Error:
-            # Handle the case when the config file is not found or has an incorrect format
-            self.project_folder = tk.StringVar()
-
-    def save_config(self):
-        try:
-            if not self.config.has_section('Settings'):
-                self.config.add_section('Settings')
-            self.config.set('Settings', 'project_folder', self.project_folder.get())
-
-            with open('config.ini', 'w') as configfile:
-                self.config.write(configfile)
-        except configparser.Error as e:
-            # Handle the case when there is an error while saving the config
-            print(f"Error saving configuration: {e}")
-    
     def create_main_tab(self):
         main_tab = ttk.Frame(self.notebook)
         self.notebook.add(main_tab, text='Main')
@@ -59,17 +44,15 @@ class GUIHandler:
         self.destination_folder = tk.StringVar()
         self.rename_file_text = tk.StringVar()
 
-        # Entry for source file
-        self.set_folder_entry(main_tab, self.source_file, "Source File:", self.browse_file)
-
-        # Entry for destination folder
+        # Entry for re-naming
+        self.set_folder_entry(main_tab, self.source_file, "Source File:", self.browse_and_set_file)
         self.set_folder_entry(main_tab, self.destination_folder, "Destination Folder:", self.browse_and_set_folder)
 
         # Entry for renaming the file
         tk.Label(main_tab, text="Rename File:").pack(pady=5)
         tk.Entry(main_tab, textvariable=self.rename_file_text, width=40).pack(pady=5)
 
-        # Confirmation button
+        # Confirmation buttn
         tk.Button(main_tab, text="Confirm", command=self.show_confirmation).pack(pady=10)
     
     def create_new_project_tab(self):
@@ -81,18 +64,28 @@ class GUIHandler:
         # Confirmation button
         tk.Button(new_project_tab, text="Confirm", command=self.create_new_project).pack(pady=10)
     
-    def create_new_project(self):
-        return
-    
     def create_settings_tab(self):
         settings_tab = ttk.Frame(self.notebook)
-        self.notebook.add(settings_tab, text='settings')
+        self.project_directory = tk.StringVar()
+        self.notebook.add(settings_tab, text='Settings')
 
-        # Entry for renaming the file
-        tk.Label(settings_tab, text="configuration").pack(pady=5)
-        # Confirmation button
-        tk.Button(settings_tab, text="Confirm", command=self.create_settings_tab).pack(pady=10)
+        tk.Label(settings_tab, text="Configuration").pack(pady=5)
 
+        # Button to set the project directory
+        tk.Button(settings_tab, text="Set Project Directory", command=self.browse_and_set_folder).pack(pady=10)
+
+        # Label to display the currently set directory
+        tk.Label(settings_tab, text="Currently set directory:").pack(pady=5)
+        self.current_directory_label = tk.Label(settings_tab, text="")
+        self.current_directory_label.pack(pady=5)
+
+        # Call the method to update and display the project folder
+        self.display_project_folder()    
+
+    def create_new_project(self):
+        return    
+
+    
     def set_folder_entry(self, tab, entry_var, label_text, browse_command):
         frame = tk.Frame(tab)
         frame.pack(pady=5)
@@ -124,7 +117,7 @@ class GUIHandler:
                 messagebox.showinfo("Success", "Files organized successfully!")
             except Exception as e:
                 messagebox.showerror("Error", f"Error moving the file: {str(e)}")
-
+    
     def get_new_file_name(self):
         # Customize this method to generate the new file name based on your requirements
         return self.rename_file_text.get()
@@ -132,6 +125,15 @@ class GUIHandler:
     def rename_and_move_file(self, source_file, destination_folder, new_name):
         # Call the corresponding method in FileOrganizer
         self.file_organizer.rename_and_move_file(source_file, destination_folder, new_name)
+
+    def set_and_update(self):
+            #get folder name
+            folder = filedialog.askdirectory()
+            self.project_directory.set(folder)
+            self.config.set('Settings', 'project_directory',self.project_directory.get())
+            with open('config.ini', 'w') as configfile:
+                self.config.write(configfile)
+
 
     def run_file_organizer(self):
         # Get user input for renaming
@@ -158,15 +160,25 @@ class GUIHandler:
         else:
             messagebox.showwarning("Warning", "Please provide both source file and destination folder.")
 
-    def browse_file(self):
+    def browse_and_set_file(self):
         file = filedialog.askopenfilename()
         self.source_file.set(file)
 
     def browse_and_set_folder(self):
         folder = filedialog.askdirectory()
         self.destination_folder.set(folder)
+   
+    def display_project_folder(self):
+        # Access the project_folder variable directly to get the current value
+        current_folder = self.project_folder.get()
+
+        # Update the label to display the current_folder value
+        self.current_directory_label.config(text=current_folder)
 
 if __name__ == "__main__":
     root = TkinterDnD.Tk()  # Use TkinterDnD for drag and drop
-    gui_handler = GUIHandler(root)
+    config_handler = ConfigHandler()
+    gui_handler = GUIHandler(root,config_handler)
+
     root.mainloop()
+
