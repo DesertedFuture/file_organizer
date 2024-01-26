@@ -11,13 +11,11 @@ class GUIHandler:
         self.root = master
         self.root.title("File Organizer")
         self.config_handler = ConfigHandler()
+        self.file_organizer = FileOrganizer()
 
         # Create a Notebook for organizing tabs
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(expand=True, fill='both')
-
-        # Instantiate FileOrganizer
-        self.file_organizer = FileOrganizer()
 
         main_tab = self.create_main_tab()
         new_project_tab = self.create_new_project_tab()
@@ -74,8 +72,6 @@ class GUIHandler:
     def create_new_project(self):
         return    
 
-
-    
     def set_folder_entry(self, tab, entry_var, label_text, browse_command):
         frame = tk.Frame(tab)
         frame.pack(pady=5)
@@ -121,9 +117,7 @@ class GUIHandler:
             folder = filedialog.askdirectory()
             self.project_directory.set(folder)
             self.config.set('Settings', 'project_directory',self.project_directory.get())
-            with open('config.ini', 'w') as configfile:
-                self.config.write(configfile)
-
+            self.config_handler.update_d(str(folder))
 
     def browse_and_set_file(self):
         file = filedialog.askopenfilename()
@@ -133,7 +127,6 @@ class GUIHandler:
         folder = filedialog.askdirectory()
         self.destination_folder.set(folder)
 
-
     def run_file_organizer(self):
         # Get user input for renaming
         user_input = self.rename_file_text.get()
@@ -141,6 +134,7 @@ class GUIHandler:
         source_file = self.source_file.get()
         destination_folder = self.destination_folder.get()
         if source_file and destination_folder:
+            
             # Construct new file name based on the desired architecture
             new_file_name = f"{user_input}_{os.path.basename(source_file)}"
 

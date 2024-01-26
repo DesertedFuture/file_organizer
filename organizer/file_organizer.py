@@ -10,9 +10,11 @@ class FileOrganizer:
     def rename_and_move_file(self, source_file, destination_folder, new_name):
         # Extract the base name and extension from the source file
         base_name, extension = os.path.splitext(os.path.basename(source_file))
+        print(base_name)
 
         # Construct the new file name with the desired architecture
-        new_file_name = f"{new_name}_{base_name}{extension}"
+        new_file_name = f"{base_name}_{new_name}{extension}"
+        print(new_file_name)
 
         # Construct the full path for the destination file
         destination_file = os.path.join(destination_folder, new_file_name)
