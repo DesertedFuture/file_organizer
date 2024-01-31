@@ -1,8 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-from tkinterdnd2 import TkinterDnD, DND_FILES
 from organizer.file_organizer import FileOrganizer
-import os
 from config.config_handler import ConfigHandler
 
 
@@ -45,25 +43,17 @@ class GUIHandler:
     def create_new_project_tab(self):
         new_project_tab = ttk.Frame(self.notebook)
         self.notebook.add(new_project_tab, text= "New Project")
-
-        tk.Label(new_project_tab, text="Create New Project?").pack(pady=5)
-        tk.Button(new_project_tab,text="Confirm",command = self.create_new_project).pack(pady=10)
-
-        
-        self.tree = ttk.Treeview(new_project_tab, columns=("Directory"),show="headings")
-        self.tree.heading("#1", text="Directory")
-        self.tree.pack(expand=True,fill="both")
-        
+        tk.Button(new_project_tab, text="Choose template to copy", command = self.template_copy).pack(pady=5)
+        # Entry for renaming the file
+        tk.Label(new_project_tab, text="Project Name:").pack(pady=5)
+        self.new_project_name = tk.StringVar()
+        tk.Entry(new_project_tab, textvariable=self.new_project_name, width=40).pack(pady=5)
+        tk.Button(new_project_tab,text="Create New Project",command = self.create_new_project).pack(pady=10)
         template = self.config_handler.get_project_template()
-        for item in template:
-            self.tree.insert("", "end", values=(item,))
+        tk.Label(new_project_tab,text=template).pack(pady=5)
+        self.current_template_label = tk.Label(new_project_tab,textvariable=template)
+        self.current_template_label.pack(pady=5) 
         
-        self.new_directory_entry = tk.Entry(new_project_tab)
-        self.new_directory_entry.pack(pady=5)
-
-        tk.Button(new_project_tab,text="Add Directory", command=self.add_directory).pack(pady=5)
-        tk.Button(new_project_tab,text="Rename Directory", command=self.rename_directory).pack(pady=5)
-        tk.Button(new_project_tab,text="Delete Directory", command=self.delete_directory).pack(pady=5)
 
     def create_settings_tab(self):
         settings_tab = ttk.Frame(self.notebook)
@@ -88,8 +78,17 @@ class GUIHandler:
             self.current_directory_label.config(text=f"Currently set directory: {folder}")
 
     def create_new_project(self):
-        template_data = self.get_template_data()
-        self.config_handler.set_project_template(template_data)
+        new_project_name = self.new_project_name.get()
+
+        if new_project_name:
+            try:
+                dest_path = self.config_handler.load_directory()
+                templ_path =  self.config_handler.get_project_template()
+                print(templ_path)
+                self.file_organizer.create_new_project(dest_path, templ_path, new_project_name)
+                messagebox.showinfo("Success", f"Project: {new_project_name} created")
+            except Exception as e:
+                messagebox.showerror("Error", f"named file already exists\n error: {e}")
 
     
     def set_folder_entry(self, tab, entry_var, label_text, browse_command):
@@ -99,6 +98,11 @@ class GUIHandler:
         tk.Label(frame, text=label_text).pack(side=tk.LEFT, padx=5)
         tk.Entry(frame, textvariable=entry_var, width=40).pack(side=tk.LEFT, padx=5)
         tk.Button(frame, text="Browse", command=browse_command).pack(side=tk.LEFT, padx=5)
+
+    def template_copy(self):
+        folder = filedialog.askdirectory()
+        self.config_handler.update_template(folder) 
+        self.current_template_label.config(text=f"Currently set Template: {folder}")
 
     def show_confirmation(self):
         source_file = self.source_file.get()
@@ -128,19 +132,6 @@ class GUIHandler:
         # Customize this method to generate the new file name based on your requirements
         return self.rename_file_text.get()
 
-    def rename_and_move_file(self, source_file, destination_folder, new_name):
-        # Call the corresponding method in FileOrganizer
-        self.file_organizer.rename_and_move_file(source_file, destination_folder, new_name)
-
-    def set_and_update(self):
-            #get folder name
-            folder = filedialog.askdirectory()
-            self.project_directory.set(folder)
-            self.config.set('Settings', 'project_directory',self.project_directory.get())
-            with open('config.ini', 'w') as configfile:
-                self.config.write(configfile)
-
-
     def browse_and_set_file(self):
         #init_directory = self.config_handler.load_directory()
         #creat new settings for this
@@ -152,43 +143,7 @@ class GUIHandler:
         folder = filedialog.askdirectory(initialdir=init_directory)
         print(folder)
         self.destination_folder.set(folder)
-    
-    def add_directory(self):
-        new_directory = self.new_directory_entry.get().strip()
 
-        if new_directory:
-            # Get the parent item (directory) where the new directory will be added
-            parent_item = self.tree.selection()
-
-            if parent_item:
-                # Insert the new directory as a child of the selected parent directory
-                self.tree.insert(parent_item, "end", values=(new_directory,))
-            else:
-                # If no parent is selected, add the new directory as a top-level directory
-                self.tree.insert("", "end", values=(new_directory,))
-
-            # Clear the entry widget
-            self.new_directory_entry.delete(0, tk.END)
-
-    def rename_directory(self):
-        selected_item = self.tree.selection()
-
-        if selected_item:
-            # Get the current name of the selected directory
-            current_name = self.tree.item(selected_item)['values'][0]
-            # Prompt the user to enter the new name
-            new_name = simpledialog.askstring("Rename Directory", f"Enter new name for '{current_name}':")
-
-            if new_name:
-                # Update the name in the treeview
-                self.tree.item(selected_item, values=(new_name,))
-
-    def delete_directory(self):
-        selected_item = self.tree.selection()
-
-        if selected_item:
-            # Remove the selected directory from the treeview
-            self.tree.delete(selected_item)
 
     def run_file_organizer(self):
         # Get user input for renaming

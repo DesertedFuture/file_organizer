@@ -26,4 +26,10 @@ class FileOrganizer:
         except Exception as e:
             print(e)
 
-    #from a button, i want to create a tree
+
+    def create_new_project(self,dest_path, templ_path, new_name):  
+        paste_path = os.path.join(dest_path, new_name)
+        try:
+            shutil.copytree(templ_path,paste_path)
+        except OSError as e:
+            print(f"Error: {e}")

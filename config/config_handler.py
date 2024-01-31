@@ -1,6 +1,7 @@
 # config_handler.py
 import configparser
 import os
+import shutil
 
 class ConfigHandler:
     def __init__(self):
@@ -70,11 +71,15 @@ class ConfigHandler:
     #
     # project template
     #
+
+    def update_template(self, folder):
+        self.config.set('Settings', 'template', str(folder))
+        self.save_config()
+
     def get_project_template(self):
-        return self.config.get('Settings','template').split(',')
+        return self.config.get('Settings','template')
 
     def set_project_template(self, template):
         tempate_str = ','.join(template)
         self.config.set('Settings','template', template_str)
         self.save_config()
-
