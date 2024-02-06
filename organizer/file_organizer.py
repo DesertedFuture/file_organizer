@@ -1,35 +1,38 @@
-# file_organizer.py
-import shutil
+# organizer/file_organizer.py
 import os
+import shutil
+from config.config_handler import ConfigHandler
 
 class FileOrganizer:
     def __init__(self):
-        # Any initialization code for the FileOrganizer class
-        return
+        # Create a ConfigHandler instance to load configuration settings
+        self.config_handler = ConfigHandler()
 
-    def rename_and_move_file(self, source_file, destination_folder, new_name, directory_path):
-        file_name=os.path.basename(source_file)
-        base_name, extension = os.path.splitext(file_name)
-        
-        print(destination_folder)
-        print(directory_path)
-
-        relative_path = os.path.relpath(destination_folder,directory_path) 
-        
-        my_name = relative_path.replace('/','_')
-        my_name = f"{my_name}_{new_name}{extension}"
-
-        dest_file = os.path.join(destination_folder,my_name)
-
+    def move_and_rename_file(self, source_file_path, destination_folder, rename_text):
         try:
-            shutil.move(source_file,dest_file)
+            # Ensure the destination folder exists
+            os.makedirs(destination_folder, exist_ok=True)
+
+            # Move and rename the file
+            new_file_path = os.path.join(destination_folder, rename_text)
+            shutil.move(source_file_path, new_file_path)
+
+            return True, new_file_path  # Success
         except Exception as e:
-            print(e)
+            return False, str(e)  # Failure
 
-
-    def create_new_project(self,dest_path, templ_path, new_name):  
-        paste_path = os.path.join(dest_path, new_name)
+    def create_new_project(self, project_name):
         try:
-            shutil.copytree(templ_path,paste_path)
-        except OSError as e:
-            print(f"Error: {e}")
+            # Get the project directory from the config.ini file
+            project_directory = self.config_handler.load_directory()
+
+            # Ensure the project directory exists
+            os.makedirs(project_directory, exist_ok=True)
+
+            # Create a new project folder
+            new_project_path = os.path.join(project_directory, project_name)
+            os.makedirs(new_project_path)
+
+            return True, f"Project '{project_name}' created successfully."
+        except Exception as e:
+            return False, str(e)

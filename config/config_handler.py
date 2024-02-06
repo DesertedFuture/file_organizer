@@ -1,85 +1,32 @@
-# config_handler.py
+# config/config_handler.py
 import configparser
-import os
-import shutil
 
 class ConfigHandler:
-    def __init__(self):
+    def __init__(self, config_path="config/config.ini"):
+        self.config_path = config_path
         self.config = configparser.ConfigParser()
-        self.config_file = 'config/config.ini'
+        self.config.read(self.config_path)
 
-        if not os.path.exists('config/config.ini') or not self.validate_config_structure():
-            self.create_default_config()
+    def update_project_directory(self, new_directory):
+        self.config['Paths']['project_directory'] = new_directory
+        with open(self.config_path, 'w') as config_file:
+            self.config.write(config_file)
 
-    def validate_config_structure(self):
-        required_sections=['Settings']
-        required_options = {'Settings': ['project_directory', 'template']}
+    def load_project_directory(self):
+        return self.config['Paths']['project_directory']
 
-        try:
-            self.config.read(self.config_file)
+    def update_current_project_path(self, new_path):
+        self.config['Paths']['current_project_path'] = new_path
+        with open(self.config_path, 'w') as config_file:
+            self.config.write(config_file)
 
-            for section in required_sections:
-                if not self.config.has_section(section):
-                    return False
-            for option in required_options.get(section,[]):
-                if not self.config.has_option(section, option):
-                    return False
-        except configparser.Error:
-            return False
+    def load_current_project_path(self):
+        return self.config['Paths']['current_project_path']
 
-        return True
-    
-    def create_default_config(self):
-    # Create or overwrite the config file with default values
-        try:
-            self.config['Settings'] = {'project_directory': '', 'template': ''}
+    def update_template_path(self, new_template_path):
+        self.config['Paths']['template_path'] = new_template_path
+        with open(self.config_path, 'w') as config_file:
+            self.config.write(config_file)
 
-            with open('config/config.ini', 'w') as configfile:
-                self.config.write(configfile)
-
-        except configparser.Error as e:
-            # Handle the case when there is an error while creating the config file
-            print(f"Error creating default configuration: {e}")
-
-    def load_setting(self, setting):
-        if not self.config.sections():
-            self.load_config()
-        try:
-            project_d = self.config.get('Settings', setting)
-            return project_d
-        except (configparser.Error, configparser.NoOptionError, configparser.NoSectionError):
-            print("error getting {setting}")
-            return None
-
-    
-    def save_config(self):
-        with open('config/config.ini', 'w') as configfile:
-            self.config.write(configfile)
-   
-
-    def load_directory(self):
-        return self.load_setting('project_directory')
-   
-    #
-    # projects directory
-    #
-    def update_d(self, folder):
-        print(folder)
-        self.config.set('Settings', 'project_directory', str(folder))
-        self.save_config()
-
-    #
-    # project template
-    #
-
-    def update_template(self, folder):
-        self.config.set('Settings', 'template', str(folder))
-        self.save_config()
-
-    def get_project_template(self):
-        return self.config.get('Settings','template')
-
-    def set_project_template(self, template):
-        tempate_str = ','.join(template)
-        self.config.set('Settings','template', template_str)
-        self.save_config()
+    def load_template_path(self):
+        return self.config['Paths']['template_path']
