@@ -12,7 +12,6 @@ class SettingsTab(TabBase):
         # Your variables
         self.project_directory = tk.StringVar()
         self.current_project_path = tk.StringVar()
-        self.template_path = tk.StringVar()
 
         self.load_ui()
 
@@ -29,21 +28,9 @@ class SettingsTab(TabBase):
         current_project_path = self.gui_handler.config_handler.load_current_project_path()
         current_project_path_label.config(text=f"Currently set Current Project Path: {current_project_path}")
 
-        # Display current template path
-        template_path_label = tk.Label(self, text="Template Path:")
-        template_path_label.pack(pady=5)
-        template_path = self.gui_handler.config_handler.load_template_path()
-        template_path_label.config(text=f"Currently set Template Path: {template_path}")
-
-        # Buttons to update paths
-        update_project_button = tk.Button(self, text="Update Project Directory", command=self.browse_and_update_project)
-        update_project_button.pack(pady=5)
-
         update_current_project_button = tk.Button(self, text="Update Current Project Path", command=self.browse_and_update_current_project)
         update_current_project_button.pack(pady=5)
 
-        update_template_button = tk.Button(self, text="Update Template Path", command=self.browse_and_update_template)
-        update_template_button.pack(pady=10)
 
     def browse_and_update_project(self):
         folder = filedialog.askdirectory()
@@ -60,11 +47,3 @@ class SettingsTab(TabBase):
             self.gui_handler.config_handler.update_current_project_path(folder)
             current_project_path_label = self.children['!label2']  # Assumes the label is the second child
             current_project_path_label.config(text=f"Currently set Current Project Path: {folder}")
-
-    def browse_and_update_template(self):
-        folder = filedialog.askdirectory()
-        if folder:
-            # Update the template path and display the updated path
-            self.gui_handler.config_handler.update_template_path(folder)
-            template_path_label = self.children['!label3']  # Assumes the label is the third child
-            template_path_label.config(text=f"Currently set Template Path: {folder}")

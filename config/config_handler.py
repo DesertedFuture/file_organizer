@@ -1,6 +1,7 @@
 # config/config_handler.py
 import configparser
 
+
 class ConfigHandler:
     def __init__(self, config_path="config/config.ini"):
         self.config_path = config_path

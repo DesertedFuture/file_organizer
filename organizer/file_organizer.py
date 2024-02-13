@@ -21,7 +21,7 @@ class FileOrganizer:
         except Exception as e:
             return False, str(e)  # Failure
 
-    def create_new_project(self, project_name):
+    def create_new_project(self, project_name, project_directory):
         try:
             # Get the project directory from the config.ini file
             project_directory = self.config_handler.load_directory()

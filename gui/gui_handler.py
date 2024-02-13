@@ -7,7 +7,9 @@ from gui.settings_tab import SettingsTab
 from config.config_handler import ConfigHandler
 from organizer.file_organizer import FileOrganizer
 
+
 class GUIHandler:
+
     def __init__(self, master):
         self.root = master
         self.root.title("File Organizer")
@@ -28,14 +30,8 @@ class GUIHandler:
         self.notebook.add(main_tab, text="Main")
 
     def load_new_project_tab(self):
-        new_project_tab = NewProjectTab(self.notebook, self.create_new_project)
+        new_project_tab = NewProjectTab(self.notebook, self)
         self.notebook.add(new_project_tab, text="New Project")
-
-    def create_new_project(self, new_project_name):
-        # Implement the logic to create a new project here
-        # You can use the provided project name and take necessary actions
-        # For now, let's just print the project name
-        print(f"Creating a new project: {new_project_name}")
 
     def load_settings_tab(self):
         settings_tab = SettingsTab(self.notebook, self)
@@ -43,6 +39,7 @@ class GUIHandler:
 
     def run(self):
         self.root.mainloop()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
