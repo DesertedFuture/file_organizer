@@ -1,0 +1,10 @@
+# requirements.txt
+
+# Tkinter for GUI
+tkinter
+
+# shutil for file operations
+shutil
+
+# configparser for handling configuration
+configparser
