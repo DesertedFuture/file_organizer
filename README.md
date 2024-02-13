@@ -29,12 +29,6 @@ File Organizer is a Python application designed to help users organize their fil
     python main.py
     ```
 
-## Screenshots
-
-![Main Screen](screenshots/main_screen.png)
-
-*Add screenshots or gifs showcasing your application in action.*
-
 ## Configuration
 
 - `config/config.ini` contains configuration settings for paths.
