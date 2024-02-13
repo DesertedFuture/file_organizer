@@ -9,7 +9,10 @@ class FileOrganizer:
         # Create a ConfigHandler instance to load configuration settings
         self.config_handler = ConfigHandler()
 
-    def move_and_rename_file(self, source_file_path, destination_folder, rename_text):
+    def move_and_rename_file(self,
+                             source_file_path,
+                             destination_folder,
+                             rename_text):
         try:
             # Ensure the destination folder exists
             os.makedirs(destination_folder, exist_ok=True)
@@ -24,26 +27,16 @@ class FileOrganizer:
 
     def create_new_project(self, project_name):
         try:
-            # Get the current project directory from config.ini
             project_directory = self.config_handler.load_project_directory()
-            print(project_directory)
-
-            # Ensure the project directory exists
             os.makedirs(project_directory, exist_ok=True)
-
-            # Get the template path and new project path
             template_path = self.config_handler.load_template_path()
             new_project_path = os.path.join(project_directory, project_name)
 
-            # Create a new project folder
             os.makedirs(new_project_path)
-
-            # Copy the contents of the template folder to the new project folder
-            shutil.copytree(template_path, new_project_path, dirs_exist_ok=True)
-
-            print(f"Project Directory: {project_directory}")
-            print(f"Template Path: {template_path}")
-            print(f"New Project Path: {new_project_path}")
+            shutil.copytree(
+                    template_path,
+                    new_project_path,
+                    dirs_exist_ok=True)
 
             return True, f"Project '{project_name}' created successfully."
         except Exception as e:

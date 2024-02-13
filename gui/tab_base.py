@@ -2,6 +2,7 @@
 import tkinter as tk
 from tkinter import ttk
 
+
 class TabBase(ttk.Frame):
     def __init__(self, notebook, tab_name):
         super().__init__(notebook)
@@ -14,7 +15,11 @@ class TabBase(ttk.Frame):
         frame.pack(pady=5)
 
         tk.Label(frame, text=label_text).pack(side=tk.LEFT, padx=5)
-        tk.Entry(frame, textvariable=entry_var, width=40).pack(side=tk.LEFT, padx=5)
+        tk.Entry(frame,
+                 textvariable=entry_var,
+                 width=40).pack(side=tk.LEFT, padx=5)
 
         if browse_command:
-            tk.Button(frame, text="Browse", command=browse_command).pack(side=tk.LEFT, padx=5)
+            tk.Button(frame,
+                      text="Browse",
+                      command=browse_command).pack(side=tk.LEFT, padx=5)

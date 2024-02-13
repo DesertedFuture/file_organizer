@@ -1,6 +1,6 @@
 # gui/gui_handler.py
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk
 from gui.main_tab import MainTab
 from gui.new_project_tab import NewProjectTab
 from gui.settings_tab import SettingsTab

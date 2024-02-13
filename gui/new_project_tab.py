@@ -78,7 +78,8 @@ class NewProjectTab(TabBase):
                 if os.path.isfile(item_path):
                     file_structure += f"{indent}  - {item}\n"
                 elif os.path.isdir(item_path):
-                    file_structure += self.load_template_structure(item_path, f"{indent}  | ")
+                    file_structure += self. \
+                            load_template_structure(item_path, f"{indent}  | ")
 
         except FileNotFoundError as e:
             file_structure = f"{indent}Error: {str(e)}\n"
