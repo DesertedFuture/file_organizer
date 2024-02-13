@@ -43,21 +43,17 @@ class NewProjectTab(TabBase):
         # Get the project name from the entry
         new_project_name = self.new_project_name.get()
 
-        # Check if the project name is not empty
+        print(self.gui_handler.config_handler.load_project_directory())
         if new_project_name:
-            # Get the project directory
-            project_directory = \
-                    self.gui_handler.config_handler.load_project_directory()
-
-            # Call the create_new_project method of FileOrganizer
             success, message = self. \
                 gui_handler.file_organizer.\
-                create_new_project(new_project_name, project_directory)
+                create_new_project(new_project_name)
 
             if success:
                 tk.messagebox.showinfo("Success", message)
             else:
                 tk.messagebox.showerror("Error", message)
+                print(message)
         else:
             tk.messagebox.showerror("Error", "Please enter a project name.")
 
@@ -70,14 +66,22 @@ class NewProjectTab(TabBase):
             self.template_text.insert(tk.END, file_structure)
 
     def load_template_structure(self, folder=None, indent=""):
-        if folder is None:
-            folder = self.gui_handler.config_handler.load_template_path()
-        file_structure = f"{indent}{os.path.basename(folder)}/\n"
-        for item in os.listdir(folder):
-            item_path = os.path.join(folder, item)
-            if os.path.isfile(item_path):
-                file_structure += f"{indent}  - {item}\n"
-            elif os.path.isdir(item_path):
-                file_structure += self.\
-                        load_template_structure(item_path, f"{indent}  | ")
+        try:
+            if folder is None:
+                folder = self.gui_handler.config_handler.load_template_path()
+            if not folder:
+                return "Template path not defined. Please update"
+
+            file_structure = f"{indent}{os.path.basename(folder)}/\n"
+            for item in os.listdir(folder):
+                item_path = os.path.join(folder, item)
+                if os.path.isfile(item_path):
+                    file_structure += f"{indent}  - {item}\n"
+                elif os.path.isdir(item_path):
+                    file_structure += self.load_template_structure(item_path, f"{indent}  | ")
+
+        except FileNotFoundError as e:
+            file_structure = f"{indent}Error: {str(e)}\n"
+            # You can provide a user-friendly message or handle it as needed
+
         return file_structure
